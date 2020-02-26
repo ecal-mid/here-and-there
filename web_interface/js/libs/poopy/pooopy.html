@@ -1,0 +1,35 @@
+
+<!-- saved from url=(0064)https://ialab.it.monash.edu/webcola/examples/nonoverlapping.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script async="" src="./pooopy_files/analytics.js"></script><script src="./pooopy_files/svg.js"></script>
+    <script src="./pooopy_files/svg.draggable.js"></script>
+    <script src="./pooopy_files/cola.min.js"></script>
+    <script src="./pooopy_files/rectangletest.js"></script>
+</head>
+<body>
+    <a href="https://ialab.it.monash.edu/webcola/index.html">cola.js home</a>
+    <p>This demo uses svg.js to draw a bunch of rectangles and svg.draggable.js to make them draggable.
+        On each drag event, we use VPSC to remove overlaps between rectangles while displacing them as little as possible.
+    </p>
+    <button type="button" onclick="removeOverlaps(rs)">Remove overlaps</button>
+    Try dragging the rectangles... 
+    <!--<button type="button" onclick="undo()">undo</button>-->
+    Use the slider to make more...
+    <input id="rectCountSlider" type="range" min="5" max="50" value="20" onchange="updateRectCount(this.value)">
+    <button type="button" onclick="rs = drawRects()">Random Shuffle</button> 
+    Animate <input type="checkbox" onchange="toggleAnimation()">
+    <div id="canvas"><svg id="SvgjsSvg1000" xmlns="http://www.w3.org/2000/svg" version="1.1" width="1497" height="1157" xlink="http://www.w3.org/1999/xlink" style="position:relative;overflow:hidden;left:0px;top:0px;"><rect id="SvgjsRect1002" width="80.0346862421628" height="60.38581013339233" x="1416.1003807177856" y="810.8639189875845" fill-opacity="0.5"></rect><rect id="SvgjsRect1003" width="79.46681138210107" height="73.40032853418083" x="104.04210409082467" y="507.5125136333873" fill-opacity="0.5"></rect><rect id="SvgjsRect1004" width="99.01327424706199" height="97.94371360212003" x="-16.819282061146257" y="149.0807639831677" fill-opacity="0.5"></rect><rect id="SvgjsRect1005" width="62.560497314926664" height="73.86490547724439" x="569.6781598446402" y="931.7256270374002" fill-opacity="0.5"></rect><rect id="SvgjsRect1006" width="99.08403999630136" height="80.32940216466136" x="755.6067924580506" y="508.86421163389804" fill-opacity="0.5"></rect><rect id="SvgjsRect1007" width="79.81588625261716" height="75.04220676443828" x="651.1825921763904" y="331.04004398439537" fill-opacity="0.5"></rect><rect id="SvgjsRect1008" width="96.12670355996107" height="62.18406030182984" x="85.67400921863016" y="982.0775051644171" fill-opacity="0.5"></rect><rect id="SvgjsRect1009" width="72.3039848489749" height="90.35312848859968" x="204.18186950683594" y="209.10275268554688" fill-opacity="0.5"></rect><rect id="SvgjsRect1010" width="93.65237204520417" height="79.6985557455967" x="1063.088667157674" y="1075.2184338177028" fill-opacity="0.5"></rect><rect id="SvgjsRect1011" width="62.40073295673688" height="70.35943363913529" x="533.2596121840852" y="1026.4703182186813" fill-opacity="0.5"></rect><rect id="SvgjsRect1012" width="94.81793612579575" height="86.99335343723689" x="965.67667453168" y="711.6033236970779" fill-opacity="0.5"></rect><rect id="SvgjsRect1013" width="99.0467304718959" height="72.40339332782908" x="82.19399318591573" y="176.59961890155867" fill-opacity="0.5"></rect><rect id="SvgjsRect1014" width="64.9820001196643" height="70.74831222231109" x="1386.1082620888901" y="151.367106054699" fill-opacity="0.5"></rect><rect id="SvgjsRect1015" width="67.45175830716042" height="64.0020899010156" x="108.79613260191594" y="401.4518277901599" fill-opacity="0.5"></rect><rect id="SvgjsRect1016" width="73.18840550452263" height="94.00714315039866" x="812.7531877460415" y="892.2441517817263" fill-opacity="0.5"></rect><rect id="SvgjsRect1017" width="95.90009035569723" height="68.48419199573011" x="322.0662581857509" y="690.9971432837643" fill-opacity="0.5"></rect><rect id="SvgjsRect1018" width="88.40034313620386" height="85.61114270431658" x="132.68524859888382" y="847.4153929399688" fill-opacity="0.5"></rect><rect id="SvgjsRect1019" width="90.44520409311924" height="76.40077293543709" x="620.6323396279092" y="43.918520896071044" fill-opacity="0.5"></rect><rect id="SvgjsRect1020" width="92.13380678053957" height="71.23955488445733" x="805.7703798601616" y="748.9795066513423" fill-opacity="0.5"></rect><rect id="SvgjsRect1021" width="65.17538076876802" height="82.03900390389498" x="917.3302440433555" y="49.13721857603679" fill-opacity="0.5"></rect><defs id="SvgjsDefs1001"></defs></svg></div>
+    <div id="dump"><p>1416.1003807177856,1496.1350669599483,810.8639189875845,871.2497291209768</p><p>104.04210409082467,183.50891547292574,507.5125136333873,580.9128421675681</p><p>3.9136868417447883,102.92696108880678,149.0807639831677,247.02447758528774</p><p>569.6781598446402,632.2386571595669,931.7256270374002,1005.5905325146446</p><p>755.6067924580506,854.690832454352,508.86421163389804,589.1936137985595</p><p>651.1825921763904,730.9984784290075,331.04004398439537,406.08225074883364</p><p>85.67400921863016,181.80071277859122,982.0775051644171,1044.2615654662468</p><p>177.18186831825946,249.48585316723438,165.10275279740068,255.45588128600036</p><p>1063.088667157674,1156.7410392028783,1075.2184338177028,1154.9169895632995</p><p>533.2596121840852,595.6603451408221,1026.4703182186813,1096.8297518578165</p><p>965.67667453168,1060.4946106574757,711.6033236970779,798.5966771343149</p><p>90.1892223847021,189.235952856598,176.59961890155867,249.00301222938776</p><p>1386.1082620888901,1451.0902622085543,151.367106054699,222.1154182770101</p><p>108.79613260191594,176.24789090907638,401.4518277901599,465.4539176911755</p><p>812.7531877460415,885.9415932505641,892.2441517817263,986.2512949321249</p><p>322.0662581857509,417.9663485414481,690.9971432837643,759.4813352794945</p><p>132.68524859888382,221.0855917350877,847.4153929399688,933.0265356442853</p><p>620.6323396279092,711.0775437210285,43.918520896071044,120.31929383150813</p><p>805.7703798601616,897.9041866407011,748.9795066513423,820.2190615357996</p><p>917.3302440433555,982.5056248121235,49.13721857603679,131.17622247993177</p></div>
+    <script>init(); rs = drawRects()</script>
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-63535113-1', 'auto');
+  ga('send', 'pageview');
+
+    </script>
+
+</body></html>

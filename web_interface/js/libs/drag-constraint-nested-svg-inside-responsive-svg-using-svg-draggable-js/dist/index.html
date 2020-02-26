@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>CodePen - Drag constraint Nested SVG inside responsive SVG using svg.draggable.js</title>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<svg id="drawing" version="1.2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" preserveAspectRatio="xMinYMin meet" viewBox="0 0 1200 250" class="responsive">
+  <rect width="1200" height="250" class="viewBox" />
+  <rect x="20" y="20" width="50" height="50" class="inline rect" />
+  <g class="inline group" transform="translate(90, 20)">
+    <rect width="50" height="50" />
+    <text x="25" y="10" text-anchor="middle">
+      <tspan x="27" dy="12px">inline</tspan>
+      <tspan x="25" dy="12px">group</tspan>
+    </text>
+  </g>
+  <svg x="160" y="20" width="50" height="50" class="inline svg">
+    <rect width="50" height="50" />
+    <text x="25" y="10" text-anchor="middle">
+      <tspan x="27" dy="12px">inline</tspan>
+      <tspan x="25" dy="12px">nested</tspan>
+    </text>
+  </svg>
+</svg>
+<!-- partial -->
+<script src="https://cdn.jsdelivr.net/npm/svg.js@2.7.1/dist/svg.min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/@svgdotjs/svg.draggable.js@3.0.2/dist/svg.draggable.min.js'></script>
+<script  src="./script.js"></script>
+
+</body>
+</html>
