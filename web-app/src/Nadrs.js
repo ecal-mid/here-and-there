@@ -9,12 +9,14 @@ export default class Nadrs {
       id: undefined,
       type: 'module', //svg base model
       nodes: new Map(), //list of all nodes
+      connections: new Map(), //list of all connections
 
       elem: undefined, //SVG.js element
       dom: undefined, //element.node
 
       props: {},
-      connections: new Map(),
+      oldProps: {},
+      
     }
 
     Object.assign(this, defaults, opts);
@@ -41,23 +43,34 @@ export default class Nadrs {
     SVG.put(this.elem);
 
     this.addDraggable();
+
     this.updateProperties();
 
-    this.initConnection();
+    this.updateConnection();
 
   }
 
-  initConnection() {
+  getConnectionTo(id) {
 
-    
+    let result = {connectionName: '', connection: null};
+
+    for(let [connectionName, connection] of this.connections.entries()) {
+
+      // console.log(connectionName, connection);
+
+      if(connectionName.includes(id) && connectionName.includes(this.id)) {
+        result = {connectionName, connection};
+        break;
+      }
+    }
+
+    return result;
+
+  }
+
+  updateConnection() {
+
     let id = this.props.connectionId;
-
-    this.addConnection(id);
-  }
-
-  addConnection(id) {
-
-    console.log(id);
 
     let node = this.nodes.get(id);
 
@@ -66,12 +79,12 @@ export default class Nadrs {
       return;
     }
 
-    let connection = node.connections.get(this.id);
+    let {connection} = this.getConnectionTo(id);
 
     if(connection) {
 
-      console.log(`Connection added: "${id}" - "${this.id}"`);
-      this.connections.set(id, connection);
+      // console.log(`Connection added: "${id}" - "${this.id}"`);
+      // this.connections.set(this.nameConnectionTo(id), connection);
 
       return;
     }
@@ -81,25 +94,28 @@ export default class Nadrs {
 
   removeConnection() {
 
-    for(const [id, connection] of this.connections.entries()) {
+    for(const [connectionName, connection] of this.connections.entries()) {
 
-      let node = this.nodes.get(id);
-      node.connections.delete(this.id);
-      this.connections.delete(id);
+      if(connectionName.includes(this.id)) {
+        this.connections.delete(connectionName);
+      }
     }
-    //this.connections.delete(id);
 
+  }
+
+  nameConnectionTo(id) {
+    return `${id} - ${this.id}`;
   }
 
   createConnection(id) {
 
     let connection = this.createConnectionObj(this.id, id);
+    let connectionName = this.nameConnectionTo(id);
     let node = this.nodes.get(id);
     
-    node.connections.set(this.id, connection);
-    this.connections.set(id, connection);
+    this.connections.set(connectionName, connection);
 
-    console.log(`Connection created: "${id}" - "${this.id}"`);
+    console.log(`Connection created: "${this.id}" - "${id}"`);
   }
 
   createConnectionObj(id1, id2) {
@@ -107,19 +123,39 @@ export default class Nadrs {
     return connection;
   }
 
-  updateProperties() {
+  update(key) {
 
-    for (let key in this.props) {
+    let format = {
+      'connectionId': 'updateConnection', 
+    }
 
-      let value = this.props[key];
+    let method = format[key];
 
-      this.setProperty(key, value);
+    if(method in this) {
+      this[method]();
+    }
+  }
+
+  updateProperties(newProps = this.props) {
+
+    for (let key in newProps) {
+
+      let newValue = newProps[key];
+
+      // console.log(newProps, key);
+
+      this.setProperty(key, newValue);
+
+      // Object.assign(this.props[key], newValue);
 
     }
 
   }
 
   setProperty(key, value = '') {
+
+    this.oldProps[key] = this.props[key];
+    this.props[key] = value;
 
     let maps = {
       "name": {selector: ".nadrs_name", ignored: []},
@@ -141,6 +177,7 @@ export default class Nadrs {
       return;
 
     dom.textContent = value;
+
   }
 
   addDraggable() {
@@ -154,13 +191,16 @@ export default class Nadrs {
 
       this.relativeDragend(e);
 
-    }); 
+    });
+
   }
 
   selfDestruct() {
+
     this.elem.remove();
     this.removeConnection();
     this.nodes.delete(this.id);
+
   }
 
   relativeDragend(e) {

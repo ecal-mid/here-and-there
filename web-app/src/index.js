@@ -88,7 +88,15 @@ import { VIZ } from './visualisation';
 
           } else if (isValidAddress(lastAddress) && isValidAddress(newAddress)) {
 
+            
             console.log('Update address');
+
+            const props = formatAddressProps(newAddress, hubs);
+
+            VIZ.updateNode({
+              id: addressId,
+              props
+            });
 
           } else if (isValidAddress(lastAddress) && !isValidAddress(newAddress)) {
 
