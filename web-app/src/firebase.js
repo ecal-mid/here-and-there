@@ -17,3 +17,13 @@ export const initializeFirebase = () => {
     resolve(firebase)
   })
 }
+
+export const getAddressById = (hubs, id) => {
+  const [hubName, addressNum] = id.split('/')
+  return hubs[hubName].find(({ address }) => address === addressNum)
+}
+
+export const isValidAddress = (address) => {
+  const { name } = address
+  return name && name !== 'undefined'
+}
