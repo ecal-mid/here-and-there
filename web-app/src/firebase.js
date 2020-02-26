@@ -18,6 +18,14 @@ export const initializeFirebase = () => {
   })
 }
 
+export const getAddressId = (hubName, address) => {
+  return hubName && address ? `${hubName}/${address}` : null;
+}
+
+export const getAddressByIndex = (hub, index) => {
+  return Object.values(hub)[parseInt(index)];
+}
+
 export const getAddressById = (hubs, id) => {
   const [hubName, addressNum] = id.split('/')
   return hubs[hubName].find(({ address }) => address === addressNum)
@@ -26,4 +34,9 @@ export const getAddressById = (hubs, id) => {
 export const isValidAddress = (address) => {
   const { name } = address
   return name && name !== 'undefined'
+}
+
+export const isValidConnection = (connection) => {
+  const { hub_name: hubName, id: index } = connection
+  return hubName && hubName !== 'none' && index && index !== 'none'
 }

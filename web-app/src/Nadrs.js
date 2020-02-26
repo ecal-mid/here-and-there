@@ -1,7 +1,5 @@
 import SVG from './SVG'
 
-console.log(SVG)
-
 export default class Nadrs {
 
   constructor(opts) {
@@ -36,6 +34,7 @@ export default class Nadrs {
     let model = SVG.findOne(models[this.type]);
 
     this.elem = model.clone();
+
     this.dom = this.elem.node;
 
     this.elem.move((Math.random()*100) + '%', (Math.random()*100) + '%');
@@ -50,11 +49,8 @@ export default class Nadrs {
 
   initConnection() {
 
-    let ignoredVals = ['none'];
-    let id = this.props.connection.path;
-
-    if(ignoredVals.indexOf(id) !== -1)
-      return;
+    
+    let id = this.props.connectionId;
 
     this.addConnection(id);
   }
@@ -88,7 +84,7 @@ export default class Nadrs {
     for(const [id, connection] of this.connections.entries()) {
 
       let node = this.nodes.get(id);
-      node.delete(this.id);
+      node.connections.delete(this.id);
       this.connections.delete(id);
     }
     //this.connections.delete(id);

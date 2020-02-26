@@ -29,8 +29,7 @@ const VIZ = {
 
   },
 
-  updateNode(id,  value) {
-
+  updateNode(id, value) {
   },
 
   removeNode(options) {
@@ -51,31 +50,5 @@ const VIZ = {
 
   }
 }
-
-let id, props;
-
-id = '#1';
-props = {
-  address:"0x8",
-  connection: {hub_name:"HUB poop", id: '8', path:"#2"},
-  message:"none",
-  name:"hello",
-  type:"0"
-};
-
-VIZ.addNode({id: id, props: props});
-
-id = '#2';
-props = {
-  address:"0x10",
-  connection: {hub_name:"HUB hey", id: '10', path:'#1'},
-  message:"none",
-  name:"fuck",
-  type:"1"
-};
-
-VIZ.addNode({id: id, props: props });
-
-VIZ.removeNode({id: id});
 
 export { VIZ };

@@ -114,6 +114,8 @@ class Address_node {
 		oldProps = this.props;
 		this.props = currProps;
 
+		// console.log(JSON.stringify(this.props));
+
 		if(!this.dom)
 			this.createDom();
 
@@ -159,7 +161,7 @@ class Address_node {
 	}
 
 	'message_change'(event) {
-		
+
 	}
 
 	'name_change'(event) {
