@@ -1,4 +1,5 @@
 import { initializeFirebase, getAddressById, isValidAddress } from './firebase'
+import { visualisation } from './visualisation'
 
 (async () => {
   const firebase = await initializeFirebase()

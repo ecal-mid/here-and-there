@@ -1,0 +1,107 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  width: 100%;
+}
+
+.main_container {
+
+  align-items: center;
+  display: flex;
+  font-family: monospace, sans-serif;
+  justify-content: space-around;
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.nadrs_cont {
+  overflow: visible;
+}
+
+.nadrs_html {
+  background: rgba(0,0,0,0.8);
+  border-radius: 10px;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.3);
+  color: white;
+  display: grid;
+  
+  height: 100%;
+
+  grid-template-areas: "name name name itwoc"
+  "gap gap gap gap"
+  "input input_val output output_val";
+
+  grid-template-columns: 1fr 2fr 1fr 2fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  position: relative;
+  overflow: hidden;
+
+  transition: box-shadow 0.2s, transform 0.05s;
+  width: 100%;
+}
+
+.nadrs_html:hover {
+  box-shadow: 0 0 30px -5px rgba(0,0,0,0.4);
+}
+
+.nadrs_html:active {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -5px rgba(0,0,0,0.5);
+}
+
+.nadrs_html>div {
+  box-sizing: border-box;
+  display: flex;
+  padding: 10px;
+}
+
+.nadrs_gap {
+  background: rgba(0,0,0,0.5);
+  grid-area: gap;
+}
+
+.nadrs_name {
+
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  font-size: 2em;
+  line-height: 0.7em;
+  grid-area: name;
+  background: rgba(0,0,0,0.5);
+}
+
+.nadrs_itwoc {
+  align-items: flex-start;
+  background: rgba(0,0,0,0.5);
+  grid-area: itwoc;
+  justify-content: flex-end;
+}
+
+.nadrs_output {
+  align-items: center;
+  color: gray;
+  justify-content: flex-start;
+  grid-area: output;
+}
+
+.nadrs_input {
+  align-items: center;
+  color: gray;
+  grid-area: input;
+  justify-content: flex-start;
+}
+
+.nadrs_input_val {
+  align-items: center;
+  grid-area: input_val;
+  justify-content: flex-start;
+
+}
+.nadrs_output_val {
+  align-items: center;
+  grid-area: output_val;
+  justify-content: flex-start;
+}
