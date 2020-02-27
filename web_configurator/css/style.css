@@ -99,7 +99,7 @@ select,input{
     align-content: center;
     padding:2px;
 }
-.selectors.active{
+.selectors.active {
     background-color: black;
     color:white;
 }
@@ -107,7 +107,7 @@ select,input{
     width: 350px;
 }
 
-.info input.bigger{
+.info input.bigger {
     font-weight: bolder;
     font-size: larger;
 }

@@ -1,4 +1,5 @@
 import SVG from './SVG'
+import * as cola from 'webcola';
 import Nadrs from './Nadrs';
 
 const VIZ = {
@@ -9,9 +10,30 @@ const VIZ = {
   setViewBox(x, y, width, height) {
     SVG.viewbox(x, y, width, height);
 
+    console.log(cola);
+
   },
 
-  connectNodes(id1, id2) {
+  removeOverlaps() {
+
+    // var rs = new Array(rects.length);
+    // var dims = [];
+    // rects.forEach(function (r, i) {
+    //   var x = r.attr('x'), y = r.attr('y'), w = r.attr('width'), h = r.attr('height');
+    //   dims.push({ x: x, y: y, w: w, h: h });
+    //   rs[i] = new cola.Rectangle(x, x + w, y, y + h);
+    // });
+    
+    // cola.removeOverlaps(rs);
+
+    // rects.forEach(function (r, i) {
+    //   var t = rs[i];
+    //   if (animate) {
+    //     r.animate().move(t.x, t.y);
+    //   } else {
+    //     r.move(t.x, t.y);
+    //   }
+    // });
 
   },
 

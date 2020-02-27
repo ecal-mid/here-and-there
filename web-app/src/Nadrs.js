@@ -16,15 +16,21 @@ export default class Nadrs {
 
       width: 250,
       height: 150,
-      x: SVG.viewbox().width/2,
-      y: SVG.viewbox().height/2,
+      x: SVG.viewbox().width * Math.random(),
+      y: SVG.viewbox().height * Math.random(),
 
       props: {},
       oldProps: {},
       
     }
 
+
+
     Object.assign(this, defaults, opts);
+
+    this.models = {
+      'module': 'defs>.nadrs_cont',
+    }
 
     // console.log(SVG);
 
@@ -36,11 +42,7 @@ export default class Nadrs {
 
     this.nodes.set(this.id, this);
 
-    let models = {
-      'module': 'defs>.nadrs_cont',
-    }
-
-    let model = SVG.findOne(models[this.type]);
+    let model = SVG.findOne(this.models[this.type]);
 
     this.elem = model.clone();
 
@@ -57,7 +59,6 @@ export default class Nadrs {
     this.addDraggable();
 
     this.updateProperties();
-
     this.updateConnection();
 
   }
@@ -81,6 +82,14 @@ export default class Nadrs {
   }
 
   //dynamic callable methods from this.update()
+
+  'updateType'() {
+
+
+
+
+
+  }
 
   'updateConnection'() {
 
@@ -108,15 +117,23 @@ export default class Nadrs {
     this.createConnection(id);
   }
 
-  removeConnection() {
+  removeConnections() {
 
     for(const [connectionName, connection] of this.connections.entries()) {
 
       if(connectionName.includes(this.id)) {
+
+        let connection = this.connections.get(connectionName);
+
+        this.deleteConnection(connection);
         this.connections.delete(connectionName);
+
       }
     }
+  }
 
+  deleteConnection(connection) {
+    connection.elem.remove();
   }
 
   nameConnectionTo(id) {
@@ -192,24 +209,28 @@ export default class Nadrs {
     a1 = [point1.x, point1.y];
     a2 = [point2.x, point2.y];
 
-    let v1 = a1[0] - a1[1];
-    let v2 = a1[0] - a1[1];
+    let len = Math.hypot(a1[0] - a1[1], a2[0] - a2[1]) * connection.len;
+    let angle = Math.atan2(a2[1] - a1[1], a2[0] - a1[0]);
 
-    let len = Math.hypot(v1, v2) * connection.len;
-    let angle = Math.atan2(v2, v1);
-
-    p2 = this.polarCoords(a2, connection.angle * point2.way, len);
-    p1 = this.polarCoords(a1, connection.angle * point1.way, len);
+    p2 = this.polarCoords(a2, (angle + connection.angle) * point2.way, len);
+    p1 = this.polarCoords(a1, (angle + connection.angle) * point1.way, len);
 
     const coords = `M${a1.join(',')} C${p1.join(',')} ${p2.join(',')} ${a2.join(',')}`;
 
     connection.elem.attr('d', coords);
+
+    let id = this.id === id1 ? id2 : id1;
+    let {elem: otherElem} = this.nodes.get(id);
+
+    connection.elem.after(otherElem);
+
   }
 
   update(key) {
 
     let format = {
-      'connectionId': 'updateConnection', 
+      'connectionId': 'updateConnection',
+      'type': 'updateType'
     }
 
     let method = format[key];
@@ -274,7 +295,7 @@ export default class Nadrs {
     });
 
 
-    dragShit.on('mousemove', (e) => {
+    dragShit.on('dragmove', (e) => {
 
 
       this.updateConnection();
@@ -282,7 +303,7 @@ export default class Nadrs {
 
     });
 
-    dragShit.on('mouseup', (e) => {
+    dragShit.on('dragend', (e) => {
 
 
       this.updateConnection();
@@ -295,7 +316,7 @@ export default class Nadrs {
   selfDestruct() {
 
     this.elem.remove();
-    this.removeConnection();
+    this.removeConnections();
     this.nodes.delete(this.id);
 
   }

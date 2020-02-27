@@ -20,8 +20,14 @@ html, body {
   overflow: visible;
 }
 
+.nadrs_connection {
+  fill: none;
+  stroke: #000000;
+  stroke-width: 3;
+}
+
 .nadrs_html {
-  background: rgba(0,0,0,0.8);
+  background: rgba(20,20,20,0.95);
   border-radius: 10px;
   box-shadow: 0 0 10px 0 rgba(0,0,0,0.3);
   color: white;
@@ -58,7 +64,7 @@ html, body {
 }
 
 .nadrs_gap {
-  background: rgba(0,0,0,0.5);
+  background: rgba(10,10,10,1);
   grid-area: gap;
 }
 
@@ -70,12 +76,12 @@ html, body {
   font-size: 2em;
   line-height: 0.7em;
   grid-area: name;
-  background: rgba(0,0,0,0.5);
+  background: rgba(10,10,10,1);
 }
 
 .nadrs_itwoc {
   align-items: flex-start;
-  background: rgba(0,0,0,0.5);
+  background: rgba(10,10,10,1);
   grid-area: itwoc;
   justify-content: flex-end;
 }
