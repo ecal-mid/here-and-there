@@ -8,40 +8,25 @@ import { VIZ } from './visualisation';
     const { connection, address: addressName } = address;
     const { hub_name: hubName, id: index } = connection
 
-    const connectionHub = hubs[hubName]
-    const { address: connectionAddress } = isValidConnection(connection)
-      ? getAddressByIndex(connectionHub, parseInt(index))
-      : {}
+    const connectionHub = hubs[hubName];
+
+    let connectionId = null;
+
+    if(isValidConnection(connection)) {
+
+      let connectionAddressName = getAddressByIndex(connectionHub, parseInt(index)).address;
+      connectionId = getAddressId(hubName, connectionAddressName);
+
+    }
 
     return {
       ...address,
-      connectionId: getAddressId(hubName, connectionAddress)
+      connectionId
     }
   }
 
-  // let id, props;
+  VIZ.setViewBox(0,0,1000,1000);
 
-  // id = '#1';
-  // props = {
-  //   address:"0x8",
-  //   connection: {hub_name:"HUB poop", id: '8', path:"#2"},
-  //   message:"none",
-  //   name:"hello",
-  //   type:"0"
-  // };
-
-  // VIZ.addNode({id: id, props: props});
-
-  // id = '#2';
-  // props = {
-  //   address:"0x10",
-  //   connection: {hub_name:"HUB hey", id: '10', path:'#1'},
-  //   message:"none",
-  //   name:"fuck",
-  //   type:"1"
-  // };
-
-  // VIZ.addNode({id: id, props: props });
 
   const firebase = await initializeFirebase();
   const db = firebase.database();
@@ -56,8 +41,10 @@ import { VIZ } from './visualisation';
         const props = formatAddressProps(address, hubs)
         const { address: addressName } = address;
 
+        let id = getAddressId(hubName, addressName);
+
         VIZ.addNode({
-          id: getAddressId(hubName, addressName),
+          id,
           props
         });
       }
@@ -69,10 +56,13 @@ import { VIZ } from './visualisation';
     const newHubs = newSnapHubs.val();
     
     for (const [hubName, adresses] of Object.entries(hubs)) {
+
       for (const { address } of adresses) {
+
         const addressId = getAddressId(hubName, address);
         const lastAddress = getAddressById(hubs, addressId);
         const newAddress = getAddressById(newHubs, addressId);
+
         if (JSON.stringify(lastAddress) !== JSON.stringify(newAddress)) {
 
           if (!isValidAddress(lastAddress) && isValidAddress(newAddress)) {
@@ -88,7 +78,6 @@ import { VIZ } from './visualisation';
 
           } else if (isValidAddress(lastAddress) && isValidAddress(newAddress)) {
 
-            
             console.log('Update address');
 
             const props = formatAddressProps(newAddress, hubs);

@@ -6,6 +6,11 @@ const VIZ = {
   connections: new Map(),
   svgObj: {},
 
+  setViewBox(x, y, width, height) {
+    SVG.viewbox(x, y, width, height);
+
+  },
+
   connectNodes(id1, id2) {
 
   },
@@ -22,11 +27,7 @@ const VIZ = {
 
     options = Object.assign(defaults, options);
 
-    console.log(options)
-
     let newElem = new Nadrs(options);
-
-    this.nodes.set(options.id, newElem);
 
   },
 
@@ -58,7 +59,7 @@ const VIZ = {
       let currVal = currProps[key];
       let newVal = newProps[key];
 
-      console.log(currVal, newVal);
+      console.log(currVal, newVal, key);
 
       if(JSON.stringify(currVal) + '' !== JSON.stringify(newVal) + '') {
 

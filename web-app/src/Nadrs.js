@@ -5,14 +5,19 @@ export default class Nadrs {
   constructor(opts) {
 
     let defaults = {
-      cont: undefined,
+      // cont: undefined,
       id: undefined,
       type: 'module', //svg base model
       nodes: new Map(), //list of all nodes
       connections: new Map(), //list of all connections
 
       elem: undefined, //SVG.js element
-      dom: undefined, //element.node
+      dom: undefined, //element.node,
+
+      width: 250,
+      height: 150,
+      x: SVG.viewbox().width/2,
+      y: SVG.viewbox().height/2,
 
       props: {},
       oldProps: {},
@@ -29,6 +34,8 @@ export default class Nadrs {
 
   create() {
 
+    this.nodes.set(this.id, this);
+
     let models = {
       'module': 'defs>.nadrs_cont',
     }
@@ -39,7 +46,12 @@ export default class Nadrs {
 
     this.dom = this.elem.node;
 
-    this.elem.move((Math.random()*100) + '%', (Math.random()*100) + '%');
+    this.elem.move(this.x, this.y);
+    this.elem.width(this.width);
+    this.elem.height(this.height);
+    this.elem.translate(-this.width/2, -this.height/2);
+    // this.elem.translate('transform', 'matrix(1 0 0 -1 W/2 H/2)');
+
     SVG.put(this.elem);
 
     this.addDraggable();
@@ -68,7 +80,9 @@ export default class Nadrs {
 
   }
 
-  updateConnection() {
+  //dynamic callable methods from this.update()
+
+  'updateConnection'() {
 
     let id = this.props.connectionId;
 
@@ -82,6 +96,8 @@ export default class Nadrs {
     let {connection} = this.getConnectionTo(id);
 
     if(connection) {
+
+      this.updatePath(connection);
 
       // console.log(`Connection added: "${id}" - "${this.id}"`);
       // this.connections.set(this.nameConnectionTo(id), connection);
@@ -109,18 +125,85 @@ export default class Nadrs {
 
   createConnection(id) {
 
-    let connection = this.createConnectionObj(this.id, id);
+    if(!this.nodes.has(id))
+      return;
+
+    let connection = this.createConnectionObjTo(id);
     let connectionName = this.nameConnectionTo(id);
     let node = this.nodes.get(id);
     
     this.connections.set(connectionName, connection);
 
+    this.updatePath(connection);
+
     console.log(`Connection created: "${this.id}" - "${id}"`);
   }
 
-  createConnectionObj(id1, id2) {
-    let connection = {path: undefined, nodesId: [id1, id2]};
+  createConnectionObjTo(id) {
+
+    let points = new Map();
+
+    let elem = SVG.findOne('defs>.nadrs_connection').clone();
+    SVG.put(elem);
+
+
+    let range = Math.PI/2;
+
+    let connection = {
+      points,
+      elem,
+      angle: Math.random()*range/2-range,
+      len: 0.4 || Math.random()+0.1*0.5,
+    }
+
+    this.setPoint(connection, 1);
+    this.nodes.get(id).setPoint(connection, -1);
+
     return connection;
+  }
+
+  setPoint(attr, way) {
+    let points = attr.points;
+    points.set(this.id, {x: this.elem.attr('x'), y: this.elem.attr('y'), way});
+  }
+
+  polarCoords(pos, angle, len) {
+    let x = pos[0] + Math.sin(angle)*len;
+    let y = pos[1] + Math.cos(angle)*len;
+    return [x,y];
+  }
+
+  updatePath(connection) {
+
+    // let connection = this.connections.get(connectionName);
+    let iter = connection.points.entries();
+    let [id1, point1] = iter.next().value;
+    let [id2, point2] = iter.next().value;
+
+    this.nodes.get(id1).setPoint(connection, point1.way);
+    this.nodes.get(id2).setPoint(connection, point2.way);
+
+    iter = connection.points.entries();
+    [id1, point1] = iter.next().value;
+    [id2, point2] = iter.next().value;
+
+    let a1, p1, a2, p2;
+
+    a1 = [point1.x, point1.y];
+    a2 = [point2.x, point2.y];
+
+    let v1 = a1[0] - a1[1];
+    let v2 = a1[0] - a1[1];
+
+    let len = Math.hypot(v1, v2) * connection.len;
+    let angle = Math.atan2(v2, v1);
+
+    p2 = this.polarCoords(a2, connection.angle * point2.way, len);
+    p1 = this.polarCoords(a1, connection.angle * point1.way, len);
+
+    const coords = `M${a1.join(',')} C${p1.join(',')} ${p2.join(',')} ${a2.join(',')}`;
+
+    connection.elem.attr('d', coords);
   }
 
   update(key) {
@@ -182,14 +265,28 @@ export default class Nadrs {
 
   addDraggable() {
 
-    this.elem.draggable().on('mousedown', (e) => {
+    let dragShit = this.elem.draggable();
+
+
+    dragShit.on('mousedown', (e) => {
       //move on top
       SVG.put(this.elem);
     });
 
-    this.elem.draggable().on('dragend', (e) => {
 
-      this.relativeDragend(e);
+    dragShit.on('mousemove', (e) => {
+
+
+      this.updateConnection();
+      // this.relativeDragend(e);
+
+    });
+
+    dragShit.on('mouseup', (e) => {
+
+
+      this.updateConnection();
+      // this.relativeDragend(e);
 
     });
 

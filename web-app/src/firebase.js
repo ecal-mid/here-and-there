@@ -27,7 +27,7 @@ export const getAddressByIndex = (hub, index) => {
 }
 
 export const getAddressById = (hubs, id) => {
-  const [hubName, addressNum] = id.split('/')
+  const [hubName, addressNum] = id.split('/');
   return hubs[hubName].find(({ address }) => address === addressNum)
 }
 
@@ -37,6 +37,10 @@ export const isValidAddress = (address) => {
 }
 
 export const isValidConnection = (connection) => {
-  const { hub_name: hubName, id: index } = connection
-  return hubName && hubName !== 'none' && index && index !== 'none'
+  const { hub_name: hubName, id: index } = connection;
+
+  let bool =  hubName && hubName !== 'none' && index && index !== 'none'
+
+
+  return bool;
 }
