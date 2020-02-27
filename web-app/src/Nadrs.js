@@ -1,4 +1,5 @@
-import SVG from './SVG'
+import SVG from './SVG';
+import * as cola from 'webcola';
 
 export default class Nadrs {
 
@@ -36,6 +37,17 @@ export default class Nadrs {
 
     this.create();
 
+  }
+
+  calcBounds() {
+
+    let r = this.elem;
+
+    let x = r.attr('x'), y = r.attr('y'), w = r.attr('width'), h = r.attr('height');
+
+    this.bounds = new cola.Rectangle(x, x + w, y, y + h);
+
+    return this.bounds;
   }
 
   create() {
@@ -230,7 +242,8 @@ export default class Nadrs {
 
     let format = {
       'connectionId': 'updateConnection',
-      'type': 'updateType'
+      'type': 'updateType',
+      'value': 'updateValue',
     }
 
     let method = format[key];
@@ -238,6 +251,20 @@ export default class Nadrs {
     if(method in this) {
       this[method]();
     }
+  }
+
+  updateValue() {
+
+    console.log('value updated');
+
+    let id = this.props.connectionId;
+    let node = this.nodes.get(id);
+
+    if(!node)
+      return;
+
+    node.setProperty('input', this.props.message);
+
   }
 
   updateProperties(newProps = this.props) {
@@ -264,7 +291,8 @@ export default class Nadrs {
     let maps = {
       "name": {selector: ".nadrs_name", ignored: []},
       "address": {selector: ".nadrs_itwoc", ignored: []},
-      "message": {selector: ".nadrs_input_val", ignored: ["none"]},
+      "message": {selector: ".nadrs_output_val", ignored: ["none"]},
+      "input": {selector: ".nadrs_input_val", ignored: ["none"]},
     }
 
     if(!(key in maps))
@@ -297,17 +325,20 @@ export default class Nadrs {
 
     dragShit.on('dragmove', (e) => {
 
-
-      this.updateConnection();
+      document.body.dispatchEvent(new CustomEvent('nodedragmove', { bubbles: true, detail: {} }));
+      // this.updateConnection();
       // this.relativeDragend(e);
+
 
     });
 
     dragShit.on('dragend', (e) => {
 
-
-      this.updateConnection();
+      document.body.dispatchEvent(new CustomEvent('nodedragend', { bubbles: true, detail: {} }));
+      // this.updateConnection();
       // this.relativeDragend(e);
+
+
 
     });
 

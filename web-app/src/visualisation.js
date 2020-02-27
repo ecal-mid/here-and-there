@@ -7,33 +7,45 @@ const VIZ = {
   connections: new Map(),
   svgObj: {},
 
-  setViewBox(x, y, width, height) {
-    SVG.viewbox(x, y, width, height);
+  init(x, y, width, height) {
 
-    console.log(cola);
+    //console.log('hey');
+
+    window.addEventListener('nodedragmove', e => {
+        // console.log('dragended');
+        this.removeOverlaps();
+        
+    });
+
+    SVG.viewbox(x, y, width, height);
 
   },
 
   removeOverlaps() {
 
-    // var rs = new Array(rects.length);
-    // var dims = [];
-    // rects.forEach(function (r, i) {
-    //   var x = r.attr('x'), y = r.attr('y'), w = r.attr('width'), h = r.attr('height');
-    //   dims.push({ x: x, y: y, w: w, h: h });
-    //   rs[i] = new cola.Rectangle(x, x + w, y, y + h);
-    // });
-    
-    // cola.removeOverlaps(rs);
+    let nodes = this.nodes.entries();
+    let bounds = [];
+    let refs = [];
 
-    // rects.forEach(function (r, i) {
-    //   var t = rs[i];
-    //   if (animate) {
-    //     r.animate().move(t.x, t.y);
-    //   } else {
-    //     r.move(t.x, t.y);
-    //   }
-    // });
+    for (let [id, node] of nodes) {
+
+      let bound = node.calcBounds();
+
+      refs.push(node);
+      bounds.push(bound);
+
+    }
+    
+    cola.removeOverlaps(bounds);
+
+    for (let i = 0; i < bounds.length; i++) {
+
+        let bound = bounds[i];
+        let node = refs[i];
+
+        node.elem.move(bound.x, bound.y);
+        node.updateConnection();
+    }
 
   },
 

@@ -25,7 +25,7 @@ import { VIZ } from './visualisation';
     }
   }
 
-  VIZ.setViewBox(0,0,1000,1000);
+  VIZ.init(0,0,1000,1000);
 
 
   const firebase = await initializeFirebase();
@@ -101,6 +101,8 @@ import { VIZ } from './visualisation';
     
     hubs = newHubs;
   });
+
+  VIZ.removeOverlaps();
 
 
 })();

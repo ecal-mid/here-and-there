@@ -9,7 +9,8 @@ html, body {
 
   align-items: center;
   display: flex;
-  font-family: monospace, sans-serif;
+  font-family: 'roboto', monospace, sans-serif;
+
   justify-content: space-around;
   position: relative;
   height: 100%;
@@ -69,6 +70,12 @@ html, body {
 }
 
 .nadrs_name {
+
+  white-space: nowrap;
+  display: block;
+
+  overflow: hidden;
+  text-overflow: ellipsis !important;
 
   align-items: flex-start;
   justify-content: flex-start;
