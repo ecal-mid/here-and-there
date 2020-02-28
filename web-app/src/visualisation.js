@@ -15,10 +15,55 @@ const VIZ = {
         // console.log('dragended');
         this.removeOverlaps();
         
-    });
+      });
 
     SVG.viewbox(x, y, width, height);
 
+    
+    this.update();    
+  },
+
+  update() {
+
+    for (let [connectionName, connection] of this.connections.entries()) {
+      this.updateConnection(connection);
+    }
+
+    requestAnimationFrame(this.update.bind(this));
+  },
+
+  updateConnection(connection) {
+
+    const [id1, id2] = Object.keys(connection.springs);
+
+    const spring1 = connection.springs[id1];
+    const spring2 = connection.springs[id2];
+
+    const elem1 = connection.elems[id1].elem;
+    const elem2 = connection.elems[id2].elem;
+
+    const a1 = {
+      x: elem1.attr('x'),
+      y: elem1.attr('y')
+    }
+
+    const a2 = {
+      x: elem2.attr('x'),
+      y: elem2.attr('y')
+    }
+
+    spring1.update(a1);
+    spring2.update(a2);
+
+    const h1 = spring1.pos;
+    const h2 = spring2.pos;
+
+
+
+    const coords = `M${a1.x},${a1.y} C${h1.x},${h1.y} ${h2.x},${h2.y} ${a2.x},${a2.y}`;
+
+    connection.path.attr('d', coords);
+    connection.path.after(elem1);
   },
 
   removeOverlaps() {
@@ -40,11 +85,10 @@ const VIZ = {
 
     for (let i = 0; i < bounds.length; i++) {
 
-        let bound = bounds[i];
-        let node = refs[i];
+      let bound = bounds[i];
+      let node = refs[i];
 
-        node.elem.move(bound.x, bound.y);
-        node.updateConnection();
+      node.elem.move(bound.x, bound.y);
     }
 
   },

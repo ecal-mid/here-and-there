@@ -142,18 +142,12 @@ export default class Nadrs {
     let {connection} = this.getConnectionTo(id);
 
     if(connection) {
-
-      this.updatePath(connection);
-
-      // console.log(`Connection added: "${id}" - "${this.id}"`);
+      this.removeConnections();
       // this.connections.set(this.nameConnectionTo(id), connection);
-
-      return;
     }
 
-    this.removeConnections();
     this.createConnection(id);
-    
+
   }
 
   removeConnections() {
@@ -172,7 +166,7 @@ export default class Nadrs {
   }
 
   deleteConnection(connection) {
-    connection.elem.remove();
+    connection.path.remove();
   }
 
   nameConnectionTo(id) {
@@ -190,84 +184,41 @@ export default class Nadrs {
     
     this.connections.set(connectionName, connection);
 
-    this.updatePath(connection);
-
     console.log(`Connection created: "${this.id}" - "${id}"`);
   }
 
   createConnectionObjTo(id) {
 
-    let points = new Map();
+    let springs = {};
+    let path = SVG.findOne('defs>.nadrs_connection').clone();
 
-    let elem = SVG.findOne('defs>.nadrs_connection').clone();
-    SVG.put(elem);
+    SVG.put(path);
 
-
-    let range = Math.PI/2;
+    let elems = {};
+    elems[id] = this.nodes.get(id);
+    elems[this.id] = this;
 
     let connection = {
-      points,
-      elem,
-      angle: Math.random()*range/2-range,
-      len: 0.4 || Math.random()+0.1*0.5,
+      gravity: 200,
+      springs: {},
+      path,
+      elems
     }
 
-    this.setPoint(connection, 0);
-    this.nodes.get(id).setPoint(connection, Math.PI);
+    this.setSpringTo(connection);
+    elems[id].setSpringTo(connection);
 
     return connection;
-  }
-
-  setPoint(attr, way) {
-    let points = attr.points;
-    points.set(this.id, {x: this.elem.attr('x'), y: this.elem.attr('y'), way});
-  }
-
-  polarCoords(pos, angle, len) {
-    let x = pos[0] + Math.sin(angle)*len;
-    let y = pos[1] + Math.cos(angle)*len;
-    return [x,y];
-  }
-
-  updatePath(connection) {
-
-    // let connection = this.connections.get(connectionName);
-    let iter = connection.points.entries();
-    let [id1, point1] = iter.next().value;
-    let [id2, point2] = iter.next().value;
-
-    this.nodes.get(id1).setPoint(connection, point1.way);
-    this.nodes.get(id2).setPoint(connection, point2.way);
-
-    iter = connection.points.entries();
-    [id1, point1] = iter.next().value;
-    [id2, point2] = iter.next().value;
-
-    let a1, p1, a2, p2;
-
-    a1 = [point1.x, point1.y];
-    a2 = [point2.x, point2.y];
-
-
-
-    let len = Math.hypot(a1[0] - a1[1], a2[0] - a2[1]) * connection.len;
-    len = Math.min(len, 300);
-    let angle = Math.atan2(a2[1] - a1[1], a2[0] - a1[0]);
-
-    p1 = this.polarCoords(a1, angle + Math.PI/2 + point1.way + connection.angle, len);
-    p2 = this.polarCoords(a2, angle + Math.PI/2 + point2.way + connection.angle, len);
-
-    const coords = `M${a1.join(',')} C${p1.join(',')} ${p2.join(',')} ${a2.join(',')}`;
-
-    connection.elem.attr('d', coords);
-
-    let id = this.id === id1 ? id2 : id1;
-    let {elem: otherElem} = this.nodes.get(id);
-
-    connection.elem.after(otherElem);
 
   }
 
+  setSpringTo(connection) {
+
+    connection.springs[this.id] = new Springy({
+      gravity: connection.gravity,
+    });
+
+  }
 
   update(key) {
 
@@ -282,6 +233,7 @@ export default class Nadrs {
     if(method in this) {
       this[method]();
     }
+
   }
 
   updateMessage() {
@@ -305,11 +257,8 @@ export default class Nadrs {
     for (let key in newProps) {
 
       let newValue = newProps[key];
-
-      // console.log(newProps, key);
-
       this.setProperty(key, newValue);
-
+      // console.log(newProps, key);
       // Object.assign(this.props[key], newValue);
 
     }
@@ -349,20 +298,16 @@ export default class Nadrs {
 
     let dragShit = this.elem.draggable();
 
-
     dragShit.on('mousedown', (e) => {
       //move on top
       SVG.put(this.elem);
     });
-
 
     dragShit.on('dragmove', (e) => {
 
       document.body.dispatchEvent(new CustomEvent('nodedragmove', { bubbles: true, detail: {} }));
       // this.updateConnection();
       // this.relativeDragend(e);
-
-
     });
 
     dragShit.on('dragend', (e) => {
@@ -370,9 +315,6 @@ export default class Nadrs {
       document.body.dispatchEvent(new CustomEvent('nodedragend', { bubbles: true, detail: {} }));
       // this.updateConnection();
       // this.relativeDragend(e);
-
-
-
     });
 
   }
@@ -406,4 +348,48 @@ export default class Nadrs {
     elem.move(rel.x + '%', rel.y + '%');
 
   }
+}
+
+class Springy {
+
+  constructor(options) {
+
+    let defaults = {
+
+      pos: {x: 0, y: 0},
+      strength: {x: 0.1, y: 0.2},
+      drag: {x: 0.8, y: 0.8},
+      vel: {x: 0, y: 0},
+      gravity: 10,
+
+    }
+
+    Object.assign(this, defaults, options);
+
+    // this.pos.y += this.gravity;
+
+  }
+
+  update(target) {
+
+   // target = mouseX;
+   let force = {};
+
+   force.x = target.x - this.pos.x;
+   force.y = target.y  + this.gravity - this.pos.y;
+
+   force.x *= this.strength.x;
+   force.y *= this.strength.y;
+
+   this.vel.x *= this.drag.x;
+   this.vel.y *= this.drag.y;
+   
+   this.vel.x += force.x;
+   this.vel.y += force.y;
+
+   this.pos.x += this.vel.x;
+   this.pos.y += this.vel.y;
+
+ }
+
 }
