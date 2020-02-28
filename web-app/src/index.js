@@ -25,8 +25,10 @@ import { VIZ } from './visualisation';
     }
   }
 
-  VIZ.init(0,0,1000,1000);
+  let ratio = window.innerHeight/window.innerWidth;
+  let size = 2000;
 
+  VIZ.init(0,0, size, size);
 
   const firebase = await initializeFirebase();
   const db = firebase.database();

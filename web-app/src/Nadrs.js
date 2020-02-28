@@ -26,11 +26,13 @@ export default class Nadrs {
     }
 
 
+    this.disabledSelector = '.disabled_value';
 
     Object.assign(this, defaults, opts);
 
     this.models = {
       'module': 'defs>.nadrs_cont',
+      'hub': 'defs>.nhub_cont',
     }
 
     // console.log(SVG);
@@ -41,9 +43,11 @@ export default class Nadrs {
 
   calcBounds() {
 
-    let r = this.elem;
-
-    let x = r.attr('x'), y = r.attr('y'), w = r.attr('width'), h = r.attr('height');
+    let e = this.elem;
+    let x = e.attr('x');
+    let y = e.attr('y');
+    let w = e.attr('width');
+    let h = e.attr('height');
 
     this.bounds = new cola.Rectangle(x, x + w, y, y + h);
 
@@ -72,6 +76,7 @@ export default class Nadrs {
 
     this.updateProperties();
     this.updateConnection();
+    this.updateType();
 
   }
 
@@ -97,9 +102,29 @@ export default class Nadrs {
 
   'updateType'() {
 
+    const selector = '.type';
+    const disSelector = this.disabledSelector.replace('.', '');
 
+    const allNodes = this.dom.querySelectorAll(selector);
+    const typeDoms = this.dom.querySelectorAll(`${selector}`);
 
+    for (const typeDom of typeDoms) {
+      typeDom.classList.add(disSelector);
+    }
 
+    const enabledSelectorsList = {
+      '0': [], // none
+      '1': ['.nadrs_output', '.nadrs_output_val'], // input
+      '2': ['.nadrs_input', '.nadrs_input_val'], // output
+      '3': ['.nadrs_input', '.nadrs_input_val', '.nadrs_output', '.nadrs_output_val'] // input/output
+    }
+
+    const enabledSelectors = enabledSelectorsList[this.props.type];
+
+    for (const enabledSelector of enabledSelectors) {
+      let currDom = this.dom.querySelector(enabledSelector);
+      currDom.classList.remove(disSelector);
+    }
 
   }
 
@@ -126,7 +151,9 @@ export default class Nadrs {
       return;
     }
 
+    this.removeConnections();
     this.createConnection(id);
+    
   }
 
   removeConnections() {
@@ -185,8 +212,8 @@ export default class Nadrs {
       len: 0.4 || Math.random()+0.1*0.5,
     }
 
-    this.setPoint(connection, 1);
-    this.nodes.get(id).setPoint(connection, -1);
+    this.setPoint(connection, 0);
+    this.nodes.get(id).setPoint(connection, Math.PI);
 
     return connection;
   }
@@ -221,11 +248,14 @@ export default class Nadrs {
     a1 = [point1.x, point1.y];
     a2 = [point2.x, point2.y];
 
+
+
     let len = Math.hypot(a1[0] - a1[1], a2[0] - a2[1]) * connection.len;
+    len = Math.min(len, 300);
     let angle = Math.atan2(a2[1] - a1[1], a2[0] - a1[0]);
 
-    p2 = this.polarCoords(a2, (angle + connection.angle) * point2.way, len);
-    p1 = this.polarCoords(a1, (angle + connection.angle) * point1.way, len);
+    p1 = this.polarCoords(a1, angle + Math.PI/2 + point1.way + connection.angle, len);
+    p2 = this.polarCoords(a2, angle + Math.PI/2 + point2.way + connection.angle, len);
 
     const coords = `M${a1.join(',')} C${p1.join(',')} ${p2.join(',')} ${a2.join(',')}`;
 
@@ -238,12 +268,13 @@ export default class Nadrs {
 
   }
 
+
   update(key) {
 
     let format = {
       'connectionId': 'updateConnection',
       'type': 'updateType',
-      'value': 'updateValue',
+      'message': 'updateMessage',
     }
 
     let method = format[key];
@@ -253,12 +284,14 @@ export default class Nadrs {
     }
   }
 
-  updateValue() {
+  updateMessage() {
 
     console.log('value updated');
 
     let id = this.props.connectionId;
     let node = this.nodes.get(id);
+
+    console.log('hey', id);
 
     if(!node)
       return;

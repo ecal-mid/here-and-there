@@ -8,27 +8,34 @@
   <title>Here And There</title>
 </head>
 <body>
-  <svg id="svg_container" preserveAspectRatio="xMidYMid meet" class="main_container" xmlns="http://www.w3.org/2000/svg">
+  <svg id="svg_container" class="main_container" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
 
-  <defs>
+    <defs>
 
-    <path class="nadrs_connection"  d="" />
+      <path class="nadrs_connection" d="" />
 
-    <foreignObject class="nadrs_cont" x="50%" y="50%" width="250" height="150">
-      <div class="nadrs_html" xmlns="http://www.w3.org/1999/xhtml">
-        <div class="nadrs_name">Name</div>
-        <div class="nadrs_itwoc" title="I2C Address">x07</div>
-        <div class="nadrs_input" title="Input">I:</div>
-        <div class="nadrs_input_val"></div>
-        <div class="nadrs_output" title="Output">O:</div>
-        <div class="nadrs_output_val"></div>
-        <div class="nadrs_gap"></div>
-      </div>
-    </foreignObject>
+      <foreignObject class="nadrs_cont" x="50%" y="50%" width="250" height="150">
+        <div class="nadrs_html" xmlns="http://www.w3.org/1999/xhtml">
+          <div class="nadrs_name" title="Device Name">Name</div>
+          <div class="nadrs_itwoc" title="I2C Address">x07</div>
+          <div class="nadrs_input type" title="Value received">I:</div>
+          <div class="nadrs_input_val type"></div>
+          <div class="nadrs_output type" title="Value send">O:</div>
+          <div class="nadrs_output_val type"></div>
+          <div class="nadrs_gap"></div>
+        </div>
+      </foreignObject>
 
-  </defs>
+      <foreignObject class="nhub_cont" x="0%" y="0%" width="400" height="400">
+        <div class="nhub_html" xmlns="http://www.w3.org/1999/xhtml"> 
+         <div class="nhub_html_in" xmlns="http://www.w3.org/1999/xhtml" title="Hub Name">Hub Name</div>
+       </div>
+     </foreignObject>
 
-</svg>
+   </defs>
+
+
+ </svg>
 
 </body>
 </html>
