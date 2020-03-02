@@ -37,8 +37,21 @@ import { VIZ } from './visualisation';
 
   let hubs = snapHubs.val();
 
+
+  // Create device modules
+
+  
+
   for (const [hubName, adresses] of Object.entries(hubs)) {
+
+    console.log(hubName);
+    VIZ.addNode({
+      id: hubName,
+      type: 'hub'
+    });
+
     for (const address of adresses) {
+
       if (isValidAddress(address)) {
         const props = formatAddressProps(address, hubs)
         const { address: addressName } = address;

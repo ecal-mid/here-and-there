@@ -5,6 +5,11 @@ export default class Nadrs {
 
   constructor(opts) {
 
+    this.models = {
+      'module': {selector: 'defs>.nadrs_cont', collider: 'Rectangle'},
+      'hub': {selector: 'defs>.nhub_cont', collider: 'Ellipse'},
+    }
+
     let defaults = {
       // cont: undefined,
       id: undefined,
@@ -25,15 +30,19 @@ export default class Nadrs {
       
     }
 
+    console.log(cola);
+
 
     this.disabledSelector = '.disabled_value';
 
     Object.assign(this, defaults, opts);
 
-    this.models = {
-      'module': 'defs>.nadrs_cont',
-      'hub': 'defs>.nhub_cont',
-    }
+    
+
+    // this.bounds = {
+    //   'module': 'defs>.nadrs_cont',
+    //   'hub': 'defs>.nhub_cont',
+    // }
 
     // console.log(SVG);
 
@@ -41,7 +50,7 @@ export default class Nadrs {
 
   }
 
-  calcBounds() {
+  calcBounds(type) {
 
     let e = this.elem;
     let x = e.attr('x');
@@ -58,7 +67,7 @@ export default class Nadrs {
 
     this.nodes.set(this.id, this);
 
-    let model = SVG.findOne(this.models[this.type]);
+    let model = SVG.findOne(this.models[this.type].selector);
 
     this.elem = model.clone();
 
@@ -296,21 +305,21 @@ export default class Nadrs {
 
   addDraggable() {
 
-    let dragShit = this.elem.draggable();
+    let dragObj = this.elem.draggable();
 
-    dragShit.on('mousedown', (e) => {
+    dragObj.on('mousedown', (e) => {
       //move on top
       SVG.put(this.elem);
     });
 
-    dragShit.on('dragmove', (e) => {
+    dragObj.on('dragmove', (e) => {
 
       document.body.dispatchEvent(new CustomEvent('nodedragmove', { bubbles: true, detail: {} }));
       // this.updateConnection();
       // this.relativeDragend(e);
     });
 
-    dragShit.on('dragend', (e) => {
+    dragObj.on('dragend', (e) => {
 
       document.body.dispatchEvent(new CustomEvent('nodedragend', { bubbles: true, detail: {} }));
       // this.updateConnection();
