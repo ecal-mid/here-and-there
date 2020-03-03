@@ -6,8 +6,8 @@ export default class Nadrs {
   constructor(opts) {
 
     this.models = {
-      'module': {selector: 'defs>.nadrs_cont', collider: 'Rectangle'},
-      'hub': {selector: 'defs>.nhub_cont', collider: 'Ellipse'},
+      'module': {selector: 'defs>.nadrs_cont', collider: 'Rectangle', width: 250, height: 150},
+      'hub': {selector: 'defs>.nhub_cont', collider: 'Ellipse', width: 400, height: 400},
     }
 
     let defaults = {
@@ -20,8 +20,8 @@ export default class Nadrs {
       elem: undefined, //SVG.js element
       dom: undefined, //element.node,
 
-      width: 250,
-      height: 150,
+      width: undefined,
+      height: undefined,
       x: SVG.viewbox().width * Math.random(),
       y: SVG.viewbox().height * Math.random(),
 
@@ -30,19 +30,10 @@ export default class Nadrs {
       
     }
 
-    console.log(cola);
-
-
-    this.disabledSelector = '.disabled_value';
-
     Object.assign(this, defaults, opts);
 
-    
-
-    // this.bounds = {
-    //   'module': 'defs>.nadrs_cont',
-    //   'hub': 'defs>.nhub_cont',
-    // }
+    this.width = this.models[this.type].width;
+    this.height = this.models[this.type].height;
 
     // console.log(SVG);
 
@@ -76,34 +67,48 @@ export default class Nadrs {
     this.elem.move(this.x, this.y);
     this.elem.width(this.width);
     this.elem.height(this.height);
-    this.elem.translate(-this.width/2, -this.height/2);
-    // this.elem.translate('transform', 'matrix(1 0 0 -1 W/2 H/2)');
 
     SVG.put(this.elem);
 
     this.addDraggable();
 
     this.updateProperties();
+
     this.updateConnection();
-    this.updateType();
+    this.update('connection');
+    this.update('type');
 
   }
 
   getConnectionTo(id) {
 
-    let result = {connectionName: '', connection: null};
+    let returnValue = {connectionName: '', connection: null};
 
     for(let [connectionName, connection] of this.connections.entries()) {
 
-      // console.log(connectionName, connection);
-
       if(connectionName.includes(id) && connectionName.includes(this.id)) {
-        result = {connectionName, connection};
+        returnValue = {connectionName, connection};
         break;
       }
     }
 
-    return result;
+    return returnValue;
+
+  }
+
+  update(key) {
+
+    let format = {
+      'connectionId': 'updateConnection',
+      'type': 'updateType',
+      'message': 'updateMessage',
+    }
+
+    let method = format[key];
+
+    if(method in this && key in this.props) {
+      this[method]();
+    }
 
   }
 
@@ -111,11 +116,8 @@ export default class Nadrs {
 
   'updateType'() {
 
-    const selector = '.type';
-    const disSelector = this.disabledSelector.replace('.', '');
-
-    const allNodes = this.dom.querySelectorAll(selector);
-    const typeDoms = this.dom.querySelectorAll(`${selector}`);
+    const disSelector = '.disabled_value';
+    const typeDoms = this.dom.querySelectorAll('.type');
 
     for (const typeDom of typeDoms) {
       typeDom.classList.add(disSelector);
@@ -229,22 +231,6 @@ export default class Nadrs {
 
   }
 
-  update(key) {
-
-    let format = {
-      'connectionId': 'updateConnection',
-      'type': 'updateType',
-      'message': 'updateMessage',
-    }
-
-    let method = format[key];
-
-    if(method in this) {
-      this[method]();
-    }
-
-  }
-
   updateMessage() {
 
     console.log('value updated');
@@ -280,6 +266,7 @@ export default class Nadrs {
     this.props[key] = value;
 
     let maps = {
+      "hubName": {selector: ".nhub_name", ignored: []},
       "name": {selector: ".nadrs_name", ignored: []},
       "address": {selector: ".nadrs_itwoc", ignored: []},
       "message": {selector: ".nadrs_output_val", ignored: ["none"]},
@@ -400,5 +387,4 @@ class Springy {
    this.pos.y += this.vel.y;
 
  }
-
 }

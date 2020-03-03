@@ -40,84 +40,86 @@ import { VIZ } from './visualisation';
 
   // Create device modules
 
+  // console.log(hubName);
   
 
   for (const [hubName, adresses] of Object.entries(hubs)) {
 
-    console.log(hubName);
-    VIZ.addNode({
-      id: hubName,
-      type: 'hub'
-    });
+   VIZ.addNode({
+    id: hubName,
+    type: 'hub',
+    props: {hubName: hubName}
+  });
 
-    for (const address of adresses) {
+   for (const address of adresses) {
 
-      if (isValidAddress(address)) {
-        const props = formatAddressProps(address, hubs)
-        const { address: addressName } = address;
 
-        let id = getAddressId(hubName, addressName);
+    if (isValidAddress(address)) {
+      const props = formatAddressProps(address, hubs)
+      const { address: addressName } = address;
 
-        VIZ.addNode({
-          id,
-          props
-        });
-      }
+      let id = getAddressId(hubName, addressName);
+
+      VIZ.addNode({
+        id,
+        props
+      });
     }
-
   }
 
-  snapHubs.ref.on('value', (newSnapHubs) => {
-    const newHubs = newSnapHubs.val();
-    
-    for (const [hubName, adresses] of Object.entries(hubs)) {
+}
 
-      for (const { address } of adresses) {
+snapHubs.ref.on('value', (newSnapHubs) => {
+  const newHubs = newSnapHubs.val();
+  
+  for (const [hubName, adresses] of Object.entries(hubs)) {
 
-        const addressId = getAddressId(hubName, address);
-        const lastAddress = getAddressById(hubs, addressId);
-        const newAddress = getAddressById(newHubs, addressId);
+    for (const { address } of adresses) {
 
-        if (JSON.stringify(lastAddress) !== JSON.stringify(newAddress)) {
+      const addressId = getAddressId(hubName, address);
+      const lastAddress = getAddressById(hubs, addressId);
+      const newAddress = getAddressById(newHubs, addressId);
 
-          if (!isValidAddress(lastAddress) && isValidAddress(newAddress)) {
+      if (JSON.stringify(lastAddress) !== JSON.stringify(newAddress)) {
 
-            console.log('New address');
-            const props = formatAddressProps(newAddress, hubs)
-            const { address: addressName } = newAddress;
+        if (!isValidAddress(lastAddress) && isValidAddress(newAddress)) {
 
-            VIZ.addNode({
-              id: getAddressId(hubName, addressName),
-              props
-            });
+          console.log('New address');
+          const props = formatAddressProps(newAddress, hubs)
+          const { address: addressName } = newAddress;
 
-          } else if (isValidAddress(lastAddress) && isValidAddress(newAddress)) {
+          VIZ.addNode({
+            id: getAddressId(hubName, addressName),
+            props
+          });
 
-            console.log('Update address');
+        } else if (isValidAddress(lastAddress) && isValidAddress(newAddress)) {
 
-            const props = formatAddressProps(newAddress, hubs);
+          console.log('Update address');
 
-            VIZ.updateNode({
-              id: addressId,
-              props
-            });
+          const props = formatAddressProps(newAddress, hubs);
 
-          } else if (isValidAddress(lastAddress) && !isValidAddress(newAddress)) {
+          VIZ.updateNode({
+            id: addressId,
+            props
+          });
 
-            console.log('Delete address');
-            console.log(addressId);
+        } else if (isValidAddress(lastAddress) && !isValidAddress(newAddress)) {
 
-            VIZ.removeNode({id: addressId});
+          console.log('Delete address');
+          console.log(addressId);
 
-          }
+          VIZ.removeNode({id: addressId});
+
         }
       }
     }
-    
-    hubs = newHubs;
-  });
+  }
+  
+  hubs = newHubs;
+});
 
-  VIZ.removeOverlaps();
+VIZ.removeOverlaps();
 
 
 })();

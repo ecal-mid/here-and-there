@@ -18,7 +18,7 @@ const VIZ = {
       });
 
     SVG.viewbox(x, y, width, height);
-
+    SVG.panZoom();
     
     this.update();    
   },
@@ -43,13 +43,13 @@ const VIZ = {
     const elem2 = connection.elems[id2].elem;
 
     const a1 = {
-      x: elem1.attr('x'),
-      y: elem1.attr('y')
+      x: elem1.attr('x') + elem1.attr('width') * 0.5,
+      y: elem1.attr('y') + elem1.attr('height') * 0.5
     }
 
     const a2 = {
-      x: elem2.attr('x'),
-      y: elem2.attr('y')
+      x: elem2.attr('x') + elem2.attr('width') * 0.5,
+      y: elem2.attr('y') + elem2.attr('height') * 0.5
     }
 
     spring1.update(a1);
