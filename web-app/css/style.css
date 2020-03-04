@@ -8,7 +8,8 @@ html, body {
 body {
   font-family: 'roboto', monospace, sans-serif;
   position: relative;
-  background: gray;
+  /*background: rgb(70,100,185);*/
+    background: rgb(86,79,82);
 }
 
 .page_title {

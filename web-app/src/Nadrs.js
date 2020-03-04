@@ -1,4 +1,5 @@
 import SVG from './SVG';
+import Springy from './Springy';
 import * as cola from 'webcola';
 
 export default class Nadrs {
@@ -35,27 +36,6 @@ export default class Nadrs {
     this.width = this.models[this.type].width;
     this.height = this.models[this.type].height;
 
-    // console.log(SVG);
-
-    this.create();
-
-  }
-
-  calcBounds(type) {
-
-    let e = this.elem;
-    let x = e.attr('x');
-    let y = e.attr('y');
-    let w = e.attr('width');
-    let h = e.attr('height');
-
-    this.bounds = new cola.Rectangle(x, x + w, y, y + h);
-
-    return this.bounds;
-  }
-
-  create() {
-
     this.nodes.set(this.id, this);
 
     let model = SVG.findOne(this.models[this.type].selector);
@@ -70,14 +50,26 @@ export default class Nadrs {
 
     SVG.put(this.elem);
 
-    this.addDraggable();
-
+    this.addDraggable(); // draggable listeners
     this.updateProperties();
 
     this.updateConnection();
     this.update('connection');
     this.update('type');
 
+  }
+
+  calcBounds(type) {
+
+    let e = this.elem;
+    let x = e.attr('x');
+    let y = e.attr('y');
+    let w = e.attr('width');
+    let h = e.attr('height');
+
+    this.bounds = new cola.Rectangle(x, x + w, y, y + h);
+
+    return this.bounds;
   }
 
   getConnectionTo(id) {
@@ -141,7 +133,10 @@ export default class Nadrs {
 
   'updateConnection'() {
 
-    let id = this.props.connectionId;
+    if(!this.props.connectionId)
+      return;
+
+    let id = this.props.connectionId.addressId;
 
     let node = this.nodes.get(id);
 
@@ -233,9 +228,10 @@ export default class Nadrs {
 
   updateMessage() {
 
-    console.log('value updated');
+    if(!this.props.connectionId)
+      return;
 
-    let id = this.props.connectionId;
+    let id = this.props.connectionId.addressId;
     let node = this.nodes.get(id);
 
     console.log('hey', id);
@@ -344,47 +340,4 @@ export default class Nadrs {
     elem.move(rel.x + '%', rel.y + '%');
 
   }
-}
-
-class Springy {
-
-  constructor(options) {
-
-    let defaults = {
-
-      pos: {x: 0, y: 0},
-      strength: {x: 0.1, y: 0.2},
-      drag: {x: 0.8, y: 0.8},
-      vel: {x: 0, y: 0},
-      gravity: 10,
-
-    }
-
-    Object.assign(this, defaults, options);
-
-    // this.pos.y += this.gravity;
-
-  }
-
-  update(target) {
-
-   // target = mouseX;
-   let force = {};
-
-   force.x = target.x - this.pos.x;
-   force.y = target.y  + this.gravity - this.pos.y;
-
-   force.x *= this.strength.x;
-   force.y *= this.strength.y;
-
-   this.vel.x *= this.drag.x;
-   this.vel.y *= this.drag.y;
-   
-   this.vel.x += force.x;
-   this.vel.y += force.y;
-
-   this.pos.x += this.vel.x;
-   this.pos.y += this.vel.y;
-
- }
 }

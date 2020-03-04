@@ -9,9 +9,13 @@ const VIZ = {
 
   init(x, y, width, height) {
 
-    //console.log('hey');
-
     window.addEventListener('nodedragmove', e => {
+        // console.log('dragended');
+        this.removeOverlaps();
+        
+      });
+
+    window.addEventListener('nodedragend', e => {
         // console.log('dragended');
         this.removeOverlaps();
         
@@ -57,8 +61,6 @@ const VIZ = {
 
     const h1 = spring1.pos;
     const h2 = spring2.pos;
-
-
 
     const coords = `M${a1.x},${a1.y} C${h1.x},${h1.y} ${h2.x},${h2.y} ${a2.x},${a2.y}`;
 

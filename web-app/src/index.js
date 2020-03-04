@@ -10,19 +10,19 @@ import { VIZ } from './visualisation';
 
     const connectionHub = hubs[hubName];
 
-    let connectionId = null;
+    let connectionId = {address: null, hub: null};
 
     if(isValidConnection(connection)) {
 
       let connectionAddressName = getAddressByIndex(connectionHub, parseInt(index)).address;
-      connectionId = getAddressId(hubName, connectionAddressName);
-
+      connectionId = {addressId: getAddressId(hubName, connectionAddressName), hubId: hubName};
     }
 
     return {
       ...address,
       connectionId
     }
+
   }
 
   let ratio = window.innerHeight/window.innerWidth;
@@ -37,11 +37,8 @@ import { VIZ } from './visualisation';
 
   let hubs = snapHubs.val();
 
-
   // Create device modules
-
-  // console.log(hubName);
-  
+  // console.log(hubName);  
 
   for (const [hubName, adresses] of Object.entries(hubs)) {
 
@@ -55,7 +52,7 @@ import { VIZ } from './visualisation';
 
 
     if (isValidAddress(address)) {
-      const props = formatAddressProps(address, hubs)
+      const props = formatAddressProps(address, hubs);
       const { address: addressName } = address;
 
       let id = getAddressId(hubName, addressName);
