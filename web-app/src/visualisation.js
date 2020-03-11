@@ -17,12 +17,18 @@ const VIZ = {
     "input": {selector: ".nadrs_input_val", ignored: ["none"]},
   },
 
+  hubDatabase: {},
+
   init(x, y, width, height) {
 
     SVG.viewbox(x, y, width, height);
     SVG.panZoom();
     
     requestAnimationFrame(this.update.bind(this));
+  },
+
+  updateHubDatabase(hubDatabase) {
+    this.hubDatabase = hubDatabase;
   },
 
   addDevice(options) {
@@ -189,13 +195,21 @@ const VIZ = {
     if(!(key in device.props))
       return;
 
-    
-
     this[method].call(this, device);
   },
 
   'updateConnection'(device) {
+    for(let connectionPath of device.connectionId) {
 
+        connectionPath = connectionPath.split('/');
+
+        for (let connectionString of connectionPath) {
+
+          
+
+        }
+
+    }
   },
 
   'updateType'(device) {
@@ -236,10 +250,10 @@ const VIZ = {
   },
 
   'updateMessage'(device) {
+
     let {connection} = device.props;
 
     console.log(connection);
-
 
   },
 

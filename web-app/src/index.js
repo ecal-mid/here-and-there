@@ -9,16 +9,14 @@ import { VIZ } from './visualisation';
 
     const connectionHub = hubs[hubName];
 
-    let connectionId = {address: null, hub: null};
+    let connectionId = [];
 
     if(isValidConnection(connection)) {
 
       let connectionAddressName = getAddressByIndex(connectionHub, parseInt(index)).address;
       let addressId = getAddressId(hubName, connectionAddressName);
 
-      let connections = addressId.split('/');
-
-      connectionId = [];
+      connectionId = [addressId];
     }
 
     return {
@@ -37,7 +35,8 @@ import { VIZ } from './visualisation';
   const dbRoot = db.ref('/HUBS');
   const snapHubs = await dbRoot.once('value');
 
-  let hubs = snapHubs.val();
+  let hubs = VIZ.hubs = snapHubs.val();
+  VIZ.updateHubDatabase(hubs);
 
   // Create device modules
   // console.log(hubName);  
@@ -65,7 +64,6 @@ import { VIZ } from './visualisation';
         });
       }
     }
-
   }
 
   snapHubs.ref.on('value', (newSnapHubs) => {
@@ -115,6 +113,8 @@ import { VIZ } from './visualisation';
     }
 
     hubs = newHubs;
+    VIZ.updateHubDatabase(newHubs);
+
   });
 
   VIZ.removeOverlaps();
