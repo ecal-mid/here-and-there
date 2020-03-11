@@ -1,173 +1,320 @@
 import SVG from './SVG'
 import * as cola from 'webcola';
-import Nadrs from './Nadrs';
+import UTILS from './utils'
 
 const VIZ = {
-  nodes: new Map(),
-  connections: new Map(),
-  svgObj: {},
+  devices: new Map(),
+
+  models: {
+    'device': {selector: 'defs>.nadrs_cont', width: 250, height: 150},
+    'hub': {selector: 'defs>.nhub_cont', width: 400, height: 400},
+  },
+
+  propertyMaps: {
+    "name": {selector: ".n_name", ignored: []},
+    "address": {selector: ".nadrs_itwoc", ignored: []},
+    "message": {selector: ".nadrs_output_val", ignored: ["none"]},
+    "input": {selector: ".nadrs_input_val", ignored: ["none"]},
+  },
 
   init(x, y, width, height) {
-
-    window.addEventListener('nodedragmove', e => {
-        // console.log('dragended');
-        this.removeOverlaps();
-        
-      });
-
-    window.addEventListener('nodedragend', e => {
-        // console.log('dragended');
-        this.removeOverlaps();
-        
-      });
 
     SVG.viewbox(x, y, width, height);
     SVG.panZoom();
     
-    this.update();    
-  },
-
-  update() {
-
-    for (let [connectionName, connection] of this.connections.entries()) {
-      this.updateConnection(connection);
-    }
-
     requestAnimationFrame(this.update.bind(this));
   },
 
-  updateConnection(connection) {
+  addDevice(options) {
 
-    const [id1, id2] = Object.keys(connection.springs);
+    const device = {
 
-    const spring1 = connection.springs[id1];
-    const spring2 = connection.springs[id2];
+      pathName: '',
 
-    const elem1 = connection.elems[id1].elem;
-    const elem2 = connection.elems[id2].elem;
+      uuid: UTILS.createUUID(),
 
-    const a1 = {
-      x: elem1.attr('x') + elem1.attr('width') * 0.5,
-      y: elem1.attr('y') + elem1.attr('height') * 0.5
+      props: {},
+      _props: {}, //old properties
+      
+      type: 'device',
+
+      elem: undefined,
+      dom: undefined,
+      
+      connections: new Map(), //fill with uuid,
+
+      position: {
+        x: SVG.viewbox().width * Math.random(),
+        y: SVG.viewbox().height * Math.random()
+      },
+    };
+
+    Object.assign(device, options);
+
+    device.elem = this.setElem(device);
+    device.dom = this.setDom(device);
+
+    this.updateProperties(device, device.props);
+    this.setDraggable(device);
+    this.setConnections(device);
+
+    this.devices.set(device.uuid, device);
+  },
+
+  setConnections(device) {
+    let props = device.props;
+
+    // console.log(connection);
+  },
+
+  setTextContent(device, propKey, newValue = '') {
+
+    if(!(propKey in this.propertyMaps)) {
+      return;
     }
 
-    const a2 = {
-      x: elem2.attr('x') + elem2.attr('width') * 0.5,
-      y: elem2.attr('y') + elem2.attr('height') * 0.5
+    const map = this.propertyMaps[propKey];
+
+    // skip if ignored newValue
+    if(map.ignored.indexOf(newValue) !== -1) {
+      return;
     }
 
-    spring1.update(a1);
-    spring2.update(a2);
+    const dom = device.dom.querySelector(map.selector);
 
-    const h1 = spring1.pos;
-    const h2 = spring2.pos;
+    if(!dom) {
+      console.log('No dom assigned! on the device', device.pathName);
+      return;
+    }
 
-    const coords = `M${a1.x},${a1.y} C${h1.x},${h1.y} ${h2.x},${h2.y} ${a2.x},${a2.y}`;
+    dom.textContent = newValue;
 
-    connection.path.attr('d', coords);
-    connection.path.after(elem1);
+  },
+
+  setElem(device) {
+
+    const {position, type} = device;
+    const model = this.models[type];
+    const elem = SVG.findOne(model.selector).clone();
+
+    elem.move(position.x, position.y);
+    elem.width(model.width);
+    elem.height(model.height);
+
+    SVG.put(elem);
+
+    return elem;
+  },
+
+  setDom(device) {
+    return device.elem.node;
+  },
+
+  setDraggable(device) {
+
+    let dragObj = device.elem.draggable();
+
+    dragObj.on('mousedown', this.onmousedown.bind(this, device));
+    dragObj.on('dragmove', this.ondragmove.bind(this, device));
+    dragObj.on('dragend', this.ondragend.bind(this, device));
+
+    return dragObj
+  },
+
+  onmousedown(device, event) {
+    // move elem on top layer
+    SVG.put(device.elem);
+  },
+
+  ondragmove(device, event) {
+    this.removeOverlaps();
+  },
+  ondragend(device, event) {
+    this.removeOverlaps();
+  },
+
+  setupConnections() {
+
+  },
+
+  updateDevice(opts, newProps) {
+    const device = this.getDeviceByPath(opts.pathName);
+
+    if(!device)
+      return;
+
+    this.updateProperties(device, newProps);
+    
+  },
+
+  updateProperties(device, newProps) {
+
+    //make sure we get all single keys
+    let allPropKeys = new Set([...Object.keys(device.props), ...Object.keys(newProps)]);
+
+    for (let propKey of allPropKeys) {
+
+      let propValue = device.props[propKey];
+      let newPropValue = newProps[propKey];
+
+      if(UTILS.areSameSimpleObj(newPropValue, propValue))
+        continue;
+
+      this.updateProps(device, propKey, newPropValue);
+      this.setTextContent(device, propKey, newPropValue);
+      this.callSpecialEvent(device, propKey);
+
+    }
+  },
+
+  updateProps(device, propKey, propValue) {
+      device._props[propKey] = device.props[propKey];
+      device.props[propKey] = propValue;
+  },
+
+  updateMaps: {
+    'connectionId': 'updateConnection',
+    'type': 'updateType',
+    'name': 'updateName',
+    'message': 'updateMessage',
+  },
+
+  callSpecialEvent(device, key) {
+
+    const method = this.updateMaps[key];
+
+    if(!(method in this))
+      return;
+
+    if(!(key in device.props))
+      return;
+
+    
+
+    this[method].call(this, device);
+  },
+
+  'updateConnection'(device) {
+
+  },
+
+  'updateType'(device) {
+
+    const disSelector = 'disabled_value';
+    const typeDoms = device.dom.querySelectorAll('.type');
+
+    for (const typeDom of typeDoms) {
+      typeDom.classList.add(disSelector);
+    }
+
+    const enabledSelectorsList = {
+
+      '0': [], // none
+      '1': ['.nadrs_output', '.nadrs_output_val'], // input
+      '2': ['.nadrs_input', '.nadrs_input_val'], // output
+      '3': ['.nadrs_input', '.nadrs_input_val', '.nadrs_output', '.nadrs_output_val'] // input/output
+    }
+
+    const enabledSelectors = enabledSelectorsList[device.props.type];
+
+    for (const enabledSelector of enabledSelectors) {
+
+      let currDom = device.dom.querySelector(enabledSelector);
+      currDom.classList.remove(disSelector);
+
+    }
+
+  },
+
+  'updateName'(device) {
+
+      //add title attribute
+      const {selector} = this.propertyMaps['name'];
+      const dom = device.dom.querySelector(selector);
+      dom.title = device.props.name;
+
+  },
+
+  'updateMessage'(device) {
+    let {connection} = device.props;
+
+    console.log(connection);
+
+
+  },
+
+  getDeviceByPath(path) {
+
+    let matchDevice = undefined;
+
+    for (const [uuid, device] of this.devices.entries() ) {
+
+      if(path === device.path) {
+        matchDevice = uuid;
+        continue;
+      }
+
+    }
+
+    return matchDevice;
+  },
+
+  removeDevice(opts) {
+
+    const device = this.getDeviceByPath(opts.pathName);
+
+    if(!device)
+      return;
+
+    this.devices.remove(device.uuid);
+
+  },
+
+  calcBounds(device) {
+
+    const {elem} = device;
+    const x = elem.attr('x');
+    const y = elem.attr('y');
+    const w = elem.attr('width');
+    const h = elem.attr('height');
+    const bounds = new cola.Rectangle(x, x + w, y, y + h);
+
+    return bounds;
+
   },
 
   removeOverlaps() {
 
-    let nodes = this.nodes.entries();
-    let bounds = [];
-    let refs = [];
+    const devices = this.devices.entries();
+    const boundList = [];
+    const deviceList = [];
 
-    for (let [id, node] of nodes) {
+    for (const [uuid, device] of devices) {
 
-      let bound = node.calcBounds();
+      const bounds = this.calcBounds(device);
 
-      refs.push(node);
-      bounds.push(bound);
+      deviceList.push(device);
+      boundList.push(bounds);
 
     }
     
-    cola.removeOverlaps(bounds);
+    cola.removeOverlaps(boundList);
 
-    for (let i = 0; i < bounds.length; i++) {
+    for (let i = boundList.length; i--;) {
 
-      let bound = bounds[i];
-      let node = refs[i];
+      const bounds = boundList[i];
+      const device = deviceList[i];
 
-      node.elem.move(bound.x, bound.y);
+      device.elem.move(bounds.x, bounds.y);
+
     }
 
   },
 
-  addNode(options) {
-
-    const defaults = {
-      id: '',
-      nodes: this.nodes,
-      connections: this.connections,
-      type: 'module',
-      props: {},
-    }
-
-    options = Object.assign(defaults, options);
-
-    let newElem = new Nadrs(options);
-
+  update() {
+    requestAnimationFrame(this.update.bind(this));
   },
 
-  updateNode(options) {
-
-    const defaults = {
-      id: '',
-      props: {},
-    }
-
-    options = Object.assign(defaults, options);
-
-    let node = this.nodes.get(options.id);
-
-    if(!node)
-      return;
-
-    this.updateProperties(node, options.props);
-
-    // node.update(options);
-  },
-
-  updateProperties(node, newProps) {
-
-    let currProps = node.props;
-
-    for (let key in newProps) {
-
-      let currVal = currProps[key];
-      let newVal = newProps[key];
-
-      console.log(currVal, newVal, key);
-
-      if(JSON.stringify(currVal) + '' !== JSON.stringify(newVal) + '') {
-
-        console.log(`${currProps.name} (${node.id}) ${key} set to `, newVal);
-
-        node.setProperty(key, newVal);
-        node.update(key, {newVal});
-      }
-    }
-  },
-
-  removeNode(options) {
-
-    const defaults = {
-      id: '',
-      props: {},
-    }
-
-    options = Object.assign(defaults, options);
-
-    let node = this.nodes.get(options.id);
-
-    if(!node)
-      return;
-
-    node.selfDestruct();
-
-  }
 }
 
 export { VIZ };

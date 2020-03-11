@@ -3,7 +3,6 @@ import { VIZ } from './visualisation';
 
 (async () => {
 
-
   function formatAddressProps (address, hubs) {
     const { connection, address: addressName } = address;
     const { hub_name: hubName, id: index } = connection
@@ -15,14 +14,17 @@ import { VIZ } from './visualisation';
     if(isValidConnection(connection)) {
 
       let connectionAddressName = getAddressByIndex(connectionHub, parseInt(index)).address;
-      connectionId = {addressId: getAddressId(hubName, connectionAddressName), hubId: hubName};
+      let addressId = getAddressId(hubName, connectionAddressName);
+
+      let connections = addressId.split('/');
+
+      connectionId = [];
     }
 
     return {
       ...address,
       connectionId
     }
-
   }
 
   let ratio = window.innerHeight/window.innerWidth;
@@ -42,81 +44,80 @@ import { VIZ } from './visualisation';
 
   for (const [hubName, adresses] of Object.entries(hubs)) {
 
-   VIZ.addNode({
-    id: hubName,
-    type: 'hub',
-    props: {hubName: hubName}
-  });
+    VIZ.addDevice({
+      pathName: hubName,
+      type: 'hub',
+      props: {name: hubName}
+    });
 
-   for (const address of adresses) {
+    for (const address of adresses) {
 
 
-    if (isValidAddress(address)) {
-      const props = formatAddressProps(address, hubs);
-      const { address: addressName } = address;
+      if (isValidAddress(address)) {
+        const props = formatAddressProps(address, hubs);
+        const { address: addressName } = address;
 
-      let id = getAddressId(hubName, addressName);
+        let id = getAddressId(hubName, addressName);
 
-      VIZ.addNode({
-        id,
-        props
-      });
+        VIZ.addDevice({
+          pathName: id,
+          props
+        });
+      }
     }
+
   }
 
-}
+  snapHubs.ref.on('value', (newSnapHubs) => {
+    const newHubs = newSnapHubs.val();
 
-snapHubs.ref.on('value', (newSnapHubs) => {
-  const newHubs = newSnapHubs.val();
-  
-  for (const [hubName, adresses] of Object.entries(hubs)) {
+    for (const [hubName, adresses] of Object.entries(hubs)) {
 
-    for (const { address } of adresses) {
+      for (const { address } of adresses) {
 
-      const addressId = getAddressId(hubName, address);
-      const lastAddress = getAddressById(hubs, addressId);
-      const newAddress = getAddressById(newHubs, addressId);
+        const addressId = getAddressId(hubName, address);
+        const lastAddress = getAddressById(hubs, addressId);
+        const newAddress = getAddressById(newHubs, addressId);
 
-      if (JSON.stringify(lastAddress) !== JSON.stringify(newAddress)) {
+        if (JSON.stringify(lastAddress) !== JSON.stringify(newAddress)) {
 
-        if (!isValidAddress(lastAddress) && isValidAddress(newAddress)) {
+          if (!isValidAddress(lastAddress) && isValidAddress(newAddress)) {
 
-          console.log('New address');
-          const props = formatAddressProps(newAddress, hubs)
-          const { address: addressName } = newAddress;
+            console.log('New address');
+            const props = formatAddressProps(newAddress, hubs);
+            const { address: addressName } = newAddress;
 
-          VIZ.addNode({
-            id: getAddressId(hubName, addressName),
-            props
-          });
+            VIZ.addDevice({
+              pathName: id,
+              props
+            });
 
-        } else if (isValidAddress(lastAddress) && isValidAddress(newAddress)) {
+          } else if (isValidAddress(lastAddress) && isValidAddress(newAddress)) {
 
-          console.log('Update address');
+            console.log('Update address');
 
-          const props = formatAddressProps(newAddress, hubs);
+            const props = formatAddressProps(newAddress, hubs);
 
-          VIZ.updateNode({
-            id: addressId,
-            props
-          });
+            VIZ.updateDevice({
+              pathName: addressId,
+              props
+            });
 
-        } else if (isValidAddress(lastAddress) && !isValidAddress(newAddress)) {
+          } else if (isValidAddress(lastAddress) && !isValidAddress(newAddress)) {
 
-          console.log('Delete address');
-          console.log(addressId);
+            console.log('Delete address');
 
-          VIZ.removeNode({id: addressId});
+            VIZ.removeDevice({pathName: addressId});
 
+          }
         }
       }
     }
-  }
-  
-  hubs = newHubs;
-});
 
-VIZ.removeOverlaps();
+    hubs = newHubs;
+  });
+
+  VIZ.removeOverlaps();
 
 
 })();

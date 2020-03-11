@@ -102,7 +102,7 @@ body {
   grid-area: gap;
 }
 
-.nadrs_name {
+.nadrs.n_name {
 
   white-space: nowrap;
   display: block;
@@ -118,8 +118,7 @@ body {
   background: rgba(10,10,10,1);
 }
 
-.nadrs_name,
-.nhub_name {
+.n_name {
   /*color: gold;*/
   font-size: 1.7em;
   line-height: 0.7em;
@@ -177,7 +176,7 @@ body {
   color: white;
 }
 
-.nhub_name {
+.nhub.n_name {
 
   position: absolute;
   width: 75%;
