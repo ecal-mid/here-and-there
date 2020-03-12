@@ -160,22 +160,27 @@ const VIZ = {
 
     for (let propKey of allPropKeys) {
 
-      let propValue = device.props[propKey];
       let newPropValue = newProps[propKey];
-
-      if(UTILS.areSameSimpleObj(newPropValue, propValue))
-        continue;
-
-      this.updateProps(device, propKey, newPropValue);
-      this.setTextContent(device, propKey, newPropValue);
-      this.callSpecialEvent(device, propKey);
+      this.updateProperty(device, propKey, newPropValue);
 
     }
   },
 
+  updateProperty(device, propKey, newPropValue) {
+    let propValue = device.props[propKey];
+
+    if(UTILS.areSameSimpleObj(newPropValue, propValue))
+      return;
+
+    this.updateProps(device, propKey, newPropValue);
+    this.setTextContent(device, propKey, newPropValue);
+    this.callSpecialEvent(device, propKey);
+
+  },
+
   updateProps(device, propKey, propValue) {
-      device._props[propKey] = device.props[propKey];
-      device.props[propKey] = propValue;
+    device._props[propKey] = device.props[propKey];
+    device.props[propKey] = propValue;
   },
 
   updateMaps: {
@@ -195,21 +200,7 @@ const VIZ = {
     if(!(key in device.props))
       return;
 
-    this[method].call(this, device);
-  },
-
-  'updateConnection'(device) {
-    for(let connectionPath of device.connectionId) {
-
-        connectionPath = connectionPath.split('/');
-
-        for (let connectionString of connectionPath) {
-
-          
-
-        }
-
-    }
+    this[method].call(this, device, key);
   },
 
   'updateType'(device) {
@@ -227,6 +218,7 @@ const VIZ = {
       '1': ['.nadrs_output', '.nadrs_output_val'], // input
       '2': ['.nadrs_input', '.nadrs_input_val'], // output
       '3': ['.nadrs_input', '.nadrs_input_val', '.nadrs_output', '.nadrs_output_val'] // input/output
+
     }
 
     const enabledSelectors = enabledSelectorsList[device.props.type];
@@ -247,27 +239,82 @@ const VIZ = {
       const dom = device.dom.querySelector(selector);
       dom.title = device.props.name;
 
+    },
+
+    'updateMessage'(device, propKey) {
+
+      let {connectionId} = device.props;
+
+      //getting message
+
+      for (let connectedPathName of connectionId) {
+
+        let messagePath = this.getMessagePath(device, connectedPathName);
+        let opts = Object.assign({}, this.messageDefault, {
+          propKey: 'input',
+          propValue: device.props[propKey],
+          sourcePathName: device.pathName,
+        });
+
+        this.transferMessage(messagePath, opts);
+      }
+
+    },
+
+    messageDefault: {
+      propKey: undefined,
+      propValue: 'none'
+    },
+
+    transferMessage(messagePath, opts) {
+
+      let pathName = messagePath.shift();
+      let device = this.getDeviceByPath(pathName);
+
+      if(messagePath.length === 0) {
+
+        if(!device) {
+          // console.log('Device does not exist');
+          return;
+        }
+
+        this.updateProperty(device, opts.propKey, opts.propValue);
+
+      } else {
+
+        this.transferMessage(messagePath, opts);
+
+      }
+
+    },
+
+    getMessagePath(device1, connectedPathName) {
+
+    //get OWN HUB
+    let device2 = this.getDeviceByPath(connectedPathName);
+    let hub1 = this.getHub(device2);
+    let hub2 = this.getHubByPath(device2);
+    
+    return [ device1, hub1, hub2, device2 ];
   },
 
-  'updateMessage'(device) {
-
-    let {connection} = device.props;
-
-    console.log(connection);
-
+  getHub(device) {
+    let pathName = device.pathName.split('/')[0]:
+    
+    
+    return pathName.split('/')[0];
   },
 
-  getDeviceByPath(path) {
+  getDeviceByPath(pathName) {
 
     let matchDevice = undefined;
 
     for (const [uuid, device] of this.devices.entries() ) {
 
-      if(path === device.path) {
-        matchDevice = uuid;
+      if(pathName === device.pathName) {
+        matchDevice = device;
         continue;
       }
-
     }
 
     return matchDevice;

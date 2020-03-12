@@ -15,7 +15,7 @@ import { VIZ } from './visualisation';
 
       let connectionAddressName = getAddressByIndex(connectionHub, parseInt(index)).address;
       let addressId = getAddressId(hubName, connectionAddressName);
-
+      
       connectionId = [addressId];
     }
 
@@ -118,6 +118,5 @@ import { VIZ } from './visualisation';
   });
 
   VIZ.removeOverlaps();
-
 
 })();

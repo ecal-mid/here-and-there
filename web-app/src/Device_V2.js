@@ -199,5 +199,5 @@ export default class Device {
 
     dom.textContent = value;
 
-  }
+  },
 }
